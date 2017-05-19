@@ -22,6 +22,9 @@ public class MainActivity extends Activity {
 
         Log.i(TAG, "estoy en onCreate");
         infoUsuario = new UserIdentifier(this);
+
+        AsyncT asyncT = new AsyncT();
+        asyncT.execute();
     }
 
     @Override
