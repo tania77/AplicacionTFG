@@ -16,10 +16,18 @@ import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Collection;
 
@@ -137,6 +145,7 @@ public class ExampleService extends Service implements BeaconConsumer {
             @Override
             public void run() {
                 try {
+                    StringBuilder result = new StringBuilder();
                     URL url = new URL("https://tfg-tania77.c9users.io:8080/algo");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
@@ -157,12 +166,27 @@ public class ExampleService extends Service implements BeaconConsumer {
                     os.flush();
                     os.close();
 
-                    Log.i(TAG, String.valueOf(conn.getResponseCode()));
-                    Log.i(TAG , conn.getResponseMessage());
+                    InputStream in = new BufferedInputStream(conn.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
 
                     conn.disconnect();
-                } catch (Exception e) {
-                    e.printStackTrace();
+
+                    Log.i(TAG, String.valueOf(conn.getResponseCode()));
+                    Log.i(TAG , result.toString());
+
+                } catch (ProtocolException e1) {
+                    e1.printStackTrace();
+                } catch (MalformedURLException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (JSONException e1) {
+                    e1.printStackTrace();
                 }
             }
         });
