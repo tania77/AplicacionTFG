@@ -12,7 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-class AsyncT extends AsyncTask<Void,Void,Void> {
+public class ServerCommunication extends AsyncTask<Void,Void,Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
@@ -21,8 +21,8 @@ class AsyncT extends AsyncTask<Void,Void,Void> {
             URL url = new URL("https://tfg-tania77.c9users.io:8080/algo");
             HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
             httpURLConnection.setDoOutput(true);
-            httpURLConnection.setRequestMethod("POST"); // here you are telling that it is a POST request, which can be changed into "PUT", "GET", "DELETE" etc.
-            httpURLConnection.setRequestProperty("Content-Type", "application/json"); // here you are setting the `Content-Type` for the data you are sending which is `application/json`
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestProperty("Content-Type", "application/json");
             httpURLConnection.connect();
 
             JSONObject jsonObject = new JSONObject();
@@ -45,5 +45,7 @@ class AsyncT extends AsyncTask<Void,Void,Void> {
         return null;
     }
 
-
+    protected void onPostExecute(Long result) {
+        Log.i("server", "Downloaded " + result + " bytes");
+    }
 }

@@ -16,7 +16,11 @@ import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
+import org.json.JSONObject;
 
+import java.io.DataOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Collection;
 
 public class ExampleService extends Service implements BeaconConsumer {
@@ -51,6 +55,7 @@ public class ExampleService extends Service implements BeaconConsumer {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         Log.i(TAG, "estoy en onDestroy");
         try {
             beaconManager.stopMonitoringBeaconsInRegion(regionMonitoring);
@@ -87,6 +92,13 @@ public class ExampleService extends Service implements BeaconConsumer {
             @Override
             public void didDetermineStateForRegion(int state, Region region) {
                 Log.i(TAG, "I have just switched from seeing/not seeing beacons: " + state);
+
+                sendPost();
+
+//                RestTemplate restTemplate = new RestTemplate();
+//                String url = "https://tfg-tania77.c9users.io/";
+//                ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+//                Log.i(TAG, response.getStatusCode().toString());
             }
         });
 
@@ -119,5 +131,42 @@ public class ExampleService extends Service implements BeaconConsumer {
             beaconManager.startRangingBeaconsInRegion(regionRanging);
         } catch (RemoteException e) {
         }
+    }
+    public void sendPost() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL("https://tfg-tania77.c9users.io:8080/algo");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                    conn.setRequestProperty("Accept","application/json");
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
+
+                    JSONObject jsonParam = new JSONObject();
+                    jsonParam.put("idPuerta", "0001");
+                    jsonParam.put("idUsuario", "352836063139035");;
+
+                    Log.i("JSON", jsonParam.toString());
+                    DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                    //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+                    os.writeBytes(jsonParam.toString());
+
+                    os.flush();
+                    os.close();
+
+                    Log.i(TAG, String.valueOf(conn.getResponseCode()));
+                    Log.i(TAG , conn.getResponseMessage());
+
+                    conn.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
     }
 }

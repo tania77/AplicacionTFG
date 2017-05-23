@@ -23,8 +23,7 @@ public class MainActivity extends Activity {
         Log.i(TAG, "estoy en onCreate");
         infoUsuario = new UserIdentifier(this);
 
-        AsyncT asyncT = new AsyncT();
-        asyncT.execute();
+
     }
 
     @Override
@@ -93,4 +92,5 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(this, ExampleService.class);
         stopService(intent);
     }
+
 }
