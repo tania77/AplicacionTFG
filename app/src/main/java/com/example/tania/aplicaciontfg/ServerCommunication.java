@@ -6,46 +6,73 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 
-public class ServerCommunication extends AsyncTask<Void,Void,Void> {
+public class ServerCommunication {
+    protected static final String TAG = "TFGAPLICATIONCOMM";
+    public ServerCommunication() {
 
-    @Override
-    protected Void doInBackground(Void... params) {
-
-        try {
-            URL url = new URL("https://tfg-tania77.c9users.io:8080/algo");
-            HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
-            httpURLConnection.setDoOutput(true);
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setRequestProperty("Content-Type", "application/json");
-            httpURLConnection.connect();
-
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("idPuerta", "0001");
-            jsonObject.put("idUsuario", "352836063139035");
-
-            DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
-            wr.writeBytes(jsonObject.toString());
-            wr.flush();
-            wr.close();
-            Log.i("SERVER", "envio");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
+    public void sendPostToServer(final String idPuerta, final String idUsuario) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    StringBuilder result = new StringBuilder();
+                    URL url = new URL("https://tfg-tania77.c9users.io:8080/algo");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                    conn.setRequestProperty("Accept","application/json");
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
 
-    protected void onPostExecute(Long result) {
-        Log.i("server", "Downloaded " + result + " bytes");
+                    JSONObject jsonParam = new JSONObject();
+                    jsonParam.put("idPuerta", idPuerta);
+                    jsonParam.put("idUsuario", idUsuario);;
+
+                    Log.i("JSON", jsonParam.toString());
+                    DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                    //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+                    os.writeBytes(jsonParam.toString());
+
+                    os.flush();
+                    os.close();
+
+                    InputStream in = new BufferedInputStream(conn.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+
+                    conn.disconnect();
+
+                    Log.i(TAG, String.valueOf(conn.getResponseCode()));
+                    Log.i(TAG , result.toString());
+
+                } catch (ProtocolException e1) {
+                    e1.printStackTrace();
+                } catch (MalformedURLException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (JSONException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
     }
 }

@@ -10,10 +10,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import org.altbeacon.beacon.service.BeaconService;
+
 public class MainActivity extends Activity {
     protected static final String TAG = "TFGAPLICATIONMON";
-    UserIdentifier infoUsuario;
     BluetoothAdapter mBluetoothAdapter;
+    Intent intentBeaconService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,8 +23,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         Log.i(TAG, "estoy en onCreate");
-        infoUsuario = new UserIdentifier(this);
-
     }
 
     @Override
@@ -82,14 +82,14 @@ public class MainActivity extends Activity {
             terminarServicio(view);
             p1_button.setText("Iniciar");
         }
-        Intent intent = new Intent(this, ExampleService.class);
-        startService(intent);
+        intentBeaconService = new Intent(this, ExampleService.class);
+        startService(intentBeaconService);
     }
 
     public void terminarServicio(View view) {
         Log.i(TAG, "estoy en terminarServicio");
-        Intent intent = new Intent(this, ExampleService.class);
-        stopService(intent);
+        //Intent intent = new Intent(this, ExampleService.class);
+        stopService(intentBeaconService);
     }
 
 }

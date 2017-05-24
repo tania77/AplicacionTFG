@@ -16,6 +16,7 @@ import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
+import org.altbeacon.beacon.service.BeaconService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,6 +32,9 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Collection;
 
+import static android.os.Process.killProcess;
+import static android.os.Process.myPid;
+
 public class ExampleService extends Service implements BeaconConsumer {
     protected static final String TAG = "TFGAPLICATIONSERV";
     private BeaconManager beaconManager;
@@ -39,6 +43,8 @@ public class ExampleService extends Service implements BeaconConsumer {
     private String strdistancia;
     Region regionMonitoring;
     Region regionRanging;
+    ServerCommunication serv;
+    UserIdentifier infoUsuario;
 
     public ExampleService() { }
 
@@ -46,12 +52,14 @@ public class ExampleService extends Service implements BeaconConsumer {
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "estoy en onCreate");
+        serv = new ServerCommunication();
+        infoUsuario = new UserIdentifier(this);
         regionMonitoring = new Region("myMonitoringUniqueId", null, null, null);
         regionRanging = new Region("myRangingUniqueId", null, null, null);
         backgroundPowerSaver = new BackgroundPowerSaver(this);
         beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
-
+        beaconManager.setBackgroundBetweenScanPeriod(50000l);
         beaconManager.bind(this);
 
     }
@@ -64,6 +72,7 @@ public class ExampleService extends Service implements BeaconConsumer {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         Log.i(TAG, "estoy en onDestroy");
         try {
             beaconManager.stopMonitoringBeaconsInRegion(regionMonitoring);
@@ -101,7 +110,7 @@ public class ExampleService extends Service implements BeaconConsumer {
             public void didDetermineStateForRegion(int state, Region region) {
                 Log.i(TAG, "I have just switched from seeing/not seeing beacons: " + state);
 
-                sendPost();
+                serv.sendPostToServer("0001", infoUsuario.getImei());
 
 //                RestTemplate restTemplate = new RestTemplate();
 //                String url = "https://tfg-tania77.c9users.io/";

@@ -27,7 +27,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'org.altbeacon:android-beacon-library:2+'
-    compile 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
     testCompile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'
