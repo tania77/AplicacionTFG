@@ -146,8 +146,7 @@ public class ExampleService extends Service implements BeaconConsumer {
 
         try {
             beaconManager.startRangingBeaconsInRegion(regionRanging);
-        } catch (RemoteException e) {
-        }
+        } catch (RemoteException e) {}
     }
     public void sendPost() {
         Thread thread = new Thread(new Runnable() {

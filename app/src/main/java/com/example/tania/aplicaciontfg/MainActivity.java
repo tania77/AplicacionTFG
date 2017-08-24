@@ -82,13 +82,14 @@ public class MainActivity extends Activity {
             terminarServicio(view);
             p1_button.setText("Iniciar");
         }
-        intentBeaconService = new Intent(this, ExampleService.class);
-        startService(intentBeaconService);
+        else {
+            intentBeaconService = new Intent(this, ExampleService.class);
+            startService(intentBeaconService);
+        }
     }
 
     public void terminarServicio(View view) {
         Log.i(TAG, "estoy en terminarServicio");
-        //Intent intent = new Intent(this, ExampleService.class);
         stopService(intentBeaconService);
     }
 
